@@ -5,17 +5,17 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 )
 
-var data []User = []User{}
+var users []User = []User{}
 
 func main() {
 	router := mux.NewRouter()
 	// Todo
 	// Set server status from env variables
-	// access request payload
 	// access request header
 	// Connect to database
 	// Parse header token middleware
@@ -34,6 +34,7 @@ func main() {
 	router.HandleFunc("/", test)
 	router.HandleFunc("/users", addUser).Methods("POST")
 	router.HandleFunc("/users", getUsers).Methods("GET")
+	router.HandleFunc("/users/{userID}", getUser).Methods("GET")
 	// logger for every request
 	// centralised error processing
 	log.Fatal(http.ListenAndServe(":4500", router))
@@ -49,16 +50,33 @@ func test(w http.ResponseWriter, r *http.Request) {
 }
 
 func addUser(w http.ResponseWriter, r *http.Request) {
-	// requestParam := mux.Vars(r)["item"]
 	var newUser User
 	json.NewDecoder(r.Body).Decode(&newUser)
-	newUser.ID = len(data) + 1
-	data = append(data, newUser)
+	newUser.ID = len(users)
+	users = append(users, newUser)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(newUser)
 }
 
 func getUsers(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(data)
+	json.NewEncoder(w).Encode(users)
+}
+
+func getUser(w http.ResponseWriter, r *http.Request) {
+	var idParam string = mux.Vars(r)["userID"]
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		w.WriteHeader(400)
+		w.Write([]byte("userID should be an integer, dumbass!"))
+		return
+	}
+	if id >= len(users) {
+		w.WriteHeader(404)
+		w.Write([]byte("Not found, my killa!"))
+		return
+	}
+	user := users[id]
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(user)
 }
