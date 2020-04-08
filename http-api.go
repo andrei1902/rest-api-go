@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 
 	"github.com/gorilla/mux"
@@ -15,7 +16,6 @@ var users []User = []User{}
 func main() {
 	router := mux.NewRouter()
 	// Todo
-	// Set server status from env variables
 	// access request header
 	// Connect to database
 	// Parse header token middleware
@@ -37,8 +37,10 @@ func main() {
 	router.HandleFunc("/users/{userID}", getUser).Methods("GET")
 	// logger for every request
 	// centralised error processing
-	log.Fatal(http.ListenAndServe(":4500", router))
 	fmt.Println("Server started...")
+	fmt.Println("Mode: ", os.Getenv("MODE"))
+	fmt.Println("Location: ", ":"+os.Getenv("PORT"))
+	log.Fatal(http.ListenAndServe(":"+os.Getenv("PORT"), router))
 	// Unit tests
 	// Gitlab CI
 	// Deploy on heroku / firebase

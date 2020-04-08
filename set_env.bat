@@ -1,0 +1,2 @@
+SET MODE=development
+SET PORT=4500
