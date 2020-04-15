@@ -26,15 +26,13 @@ func main() {
 	// get download/user?format="csv"
 	// get download/user?format="txt"
 	// get download/user?format="xml"
-	// get /user/{id}
-	// put /user/{id}
 	// patch /user/{id}
-	// put /user/{id}
 	// delete /user/{id}
 	router.HandleFunc("/", test)
 	router.HandleFunc("/users", addUser).Methods("POST")
 	router.HandleFunc("/users", getUsers).Methods("GET")
 	router.HandleFunc("/users/{userID}", getUser).Methods("GET")
+	router.HandleFunc("/users/{userID}", updateUser).Methods("PUT")
 	// logger for every request
 	// centralised error processing
 	fmt.Println("Server started...")
@@ -75,10 +73,33 @@ func getUser(w http.ResponseWriter, r *http.Request) {
 	}
 	if id >= len(users) {
 		w.WriteHeader(404)
-		w.Write([]byte("Not found, my killa!"))
+		w.Write([]byte("User, not found, my killa!"))
 		return
 	}
 	user := users[id]
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(user)
+}
+
+func updateUser(w http.ResponseWriter, r *http.Request) {
+	var idParam string = mux.Vars(r)["userID"]
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		w.WriteHeader(400)
+		w.Write([]byte("userID should be an integer, dumbass!"))
+		return
+	}
+	if id >= len(users) {
+		w.WriteHeader(404)
+		w.Write([]byte("User, not found, my killa!"))
+		return
+	}
+
+	var updatedU User
+	json.NewDecoder(r.Body).Decode(&updatedU)
+
+	users[id] = updatedU
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(updatedU)
 }
