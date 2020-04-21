@@ -5,5 +5,5 @@ type User struct {
 	ID           int
 	PersonalData UserPersonalData `json:"personalData"`
 	IsDeleted    bool
-	PasswordHash string
+	passwordHash string
 }
