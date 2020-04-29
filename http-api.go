@@ -31,12 +31,12 @@ func main() {
 	router.HandleFunc("/users/{userID}", UpdateUser).Methods("PUT")
 	router.HandleFunc("/users/{userID}", PatchUser).Methods("PATCH")
 	router.HandleFunc("/users/{userID}", DeleteUser).Methods("DELETE")
-	// logger for every request
+	loggingRouter := LoggerMiddleware(router)
 	// centralised error processing
 	fmt.Println("Server started...")
 	fmt.Println("Mode: ", os.Getenv("MODE"))
 	fmt.Println("Location: ", ":"+os.Getenv("PORT"))
-	log.Fatal(http.ListenAndServe(":"+os.Getenv("PORT"), router))
+	log.Fatal(http.ListenAndServe(":"+os.Getenv("PORT"), loggingRouter))
 	// Unit tests
 	// Gitlab CI
 	// Deploy on heroku / firebase
